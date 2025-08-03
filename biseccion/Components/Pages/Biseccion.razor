@@ -1,0 +1,206 @@
+@page "/biseccion"
+@using System.Text.RegularExpressions
+@using NCalc
+@rendermode InteractiveServer
+
+
+<h3>Método de Bisección</h3>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label>Función f(x):</label>
+        <InputText @bind-Value="Funcion" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Valor de Xi:</label>
+        <InputNumber @bind-Value="A" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Valor de Xu:</label>
+        <InputNumber @bind-Value="B" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Tolerancia:</label>
+        <InputNumber @bind-Value="Tolerancia" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Iteraciones máximas:</label>
+        <InputNumber @bind-Value="IteracionesMax" class="form-control" />
+    </div>
+</div>
+
+<button class="btn btn-primary" @onclick="AplicarBiseccion">Calcular</button>
+@if (!string.IsNullOrEmpty(Mensaje))
+{
+<div class="alert alert-warning">@Mensaje</div>
+}
+@if (Resultados.Any())
+{
+    <h5>Resultados:</h5>
+    <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Iteración</th>
+            <th>Xi</th>
+            <th>Xu</th>
+            <th>Xr</th>
+            <th>f(a)</th>
+            <th>f(b)</th>
+            <th>f(c)</th>
+            <th>Error Estimado</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var r in Resultados)
+        {
+            <tr>
+                <td>@r.Iteracion</td>
+                <td>@r.A.ToString("F4")</td>
+                <td>@r.B.ToString("F4")</td>
+                <td>@r.C.ToString("F4")</td>
+                <td>@r.FA.ToString("F4")</td>
+                <td>@r.FB.ToString("F4")</td>
+                <td>@r.FC.ToString("F4")</td>
+                <td>@r.Error?.ToString("F4")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+@if (Raiz.HasValue)
+{
+    <p>Raíz aproximada: <b>@Raiz.Value</b></p>
+}
+}
+
+
+@code {
+    private string Funcion = "x^3 - x - 2"; 
+    private double A;
+    private double B;
+    private double Tolerancia = 0.0001;
+    private int IteracionesMax = 50;
+    private string Mensaje = "";
+    private double? Raiz = null;
+    
+
+
+
+    private List<IteracionBiseccion> Resultados = new();
+
+    private void AplicarBiseccion()
+    {
+        Resultados.Clear();
+        Mensaje = "";
+        Raiz = null;
+
+        double a = A;
+        double b = B;
+
+        if (Evaluar(a) * Evaluar(b) >= 0)
+        {
+            Mensaje = "No se puede aplicar el método: f(a) y f(b) deben tener signos opuestos.";
+            return;
+        }
+        double cAnterior = 0;
+
+        for (int i = 1; i <= IteracionesMax; i++)
+        {
+            double c = (a + b) / 2.0;
+            double fA = Evaluar(a);
+            double fC = Evaluar(c);
+            double? error = null;
+            
+            if (i == 1)
+            {
+                error = null; // No hay error para la primer iteración
+            }
+            else
+            { error = i == 1 ? double.MaxValue : Math.Abs((c - cAnterior) / c);}
+           
+
+            Resultados.Add(new IteracionBiseccion
+            {
+                Iteracion = i,
+                A = a,
+                B = b,
+                C = c,
+                FA = fA,
+                FC = fC,
+                Error = error
+            });
+
+            if (error < Tolerancia || fC == 0)
+            {
+                Raiz = c;
+                Mensaje = $"Raíz encontrada en iteración {i}";
+                break;
+            }
+
+            if (fA * fC < 0)
+            {
+                b = c;
+            }
+            else
+            {
+                a = c;
+            }
+
+            cAnterior = c;
+        }
+
+        if (!Raiz.HasValue && Resultados.Any())
+        {
+            Raiz = Resultados.Last().C;
+        }
+    }
+    
+private string ConvertirPotencias(string funcion)
+    {
+        string patron = @"(\(?[\w\.\+\-\*\/]+\)?)\^(\(?[\w\.\+\-\*\/]+\)?)";
+
+        while (Regex.IsMatch(funcion, patron))
+        {
+            funcion = Regex.Replace(funcion, patron, m =>
+            {
+                string baseExp = m.Groups[1].Value;
+                string expExp = m.Groups[2].Value;
+                return $"Pow({baseExp},{expExp})";
+            });
+        }
+        return funcion;
+    }
+
+
+    
+    private double Evaluar(double x)
+    {
+        try
+        {
+            string funcionProcesada = ConvertirPotencias(Funcion);
+            var expression = new NCalc.Expression(funcionProcesada);
+            expression.Parameters["x"] = x;
+            var result = expression.Evaluate();
+            return Convert.ToDouble(result);
+        }
+        catch (Exception ex)
+        {
+            Mensaje = $"Error al evaluar la función: {ex.Message}";
+            return 0;
+        }
+    }
+    private class IteracionBiseccion
+    {
+        public int Iteracion { get; set; }
+        public double A { get; set; }
+        public double B { get; set; }
+        public double C { get; set; }
+        public double FA { get; set; }
+        public double FB { get; set; }
+        public double FC { get; set; }
+        public double? Error { get; set; }
+    }
+  
+
+}
