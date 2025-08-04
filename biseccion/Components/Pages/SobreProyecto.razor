@@ -1,0 +1,51 @@
+@page "/SobreProyecto"
+
+<div style="padding-top: 6rem;">
+    <h1>Sobre el Proyecto</h1>
+</div>
+
+<p class="intro">
+    Este proyecto corresponde al trabajo final de la asignatura <strong>Métodos Numéricos</strong>, impartida en el marco de la formación en ingeniería. Su objetivo principal es aplicar los conceptos teóricos aprendidos en clase en el desarrollo de una herramienta computacional interactiva que permita estudiar el comportamiento de los métodos cerrados para la resolución de ecuaciones no lineales.
+</p>
+
+<p class="intro">
+    El enfoque del proyecto se centra en los <strong>métodos cerrados</strong>, específicamente el <em>método de bisección</em> y el <em>método de falsa posición</em>. Ambos son métodos iterativos que requieren un intervalo inicial donde se garantice un cambio de signo en la función, lo que asegura, bajo el Teorema del Valor Intermedio, la existencia de al menos una raíz dentro de ese intervalo. A partir de esa condición, se reduce progresivamente el intervalo hasta alcanzar una solución con la precisión deseada.
+</p>
+
+<p class="intro">
+    La aplicación desarrollada permite al usuario experimentar con estos métodos de forma visual e interactiva. Se incluyen dos modalidades de uso para cada método: un <strong>modo automático</strong>, que genera directamente la tabla de iteraciones y la raíz aproximada, y un <strong>modo paso a paso</strong>, diseñado con fines educativos para seguir el proceso de cada iteración de manera detallada. Además, se ofrece la opción de visualizar gráficamente la función evaluada, lo que refuerza el entendimiento geométrico del proceso de aproximación.
+</p>
+
+<p class="intro">
+    El desarrollo fue llevado a cabo por el grupo <strong>Euclides</strong>, nombrado en homenaje al matemático griego Euclides, cuyas contribuciones a la geometría sentaron las bases del razonamiento lógico-matemático. El grupo está conformado por <strong>dos estudiantes de Ingeniería Civil</strong> y <strong>dos estudiantes de Ingeniería en Sistemas</strong>, lo que permitió una sinergia entre el enfoque analítico y el técnico-programático del proyecto.
+</p>
+
+<p class="intro">
+    Desde el punto de vista técnico, la herramienta fue implementada utilizando la tecnología <strong>Blazor con C#</strong>, permitiendo la construcción de interfaces web dinámicas sin abandonar el lenguaje de programación base del entorno .NET. También se integraron bibliotecas para la evaluación simbólica de expresiones y la representación gráfica en tiempo real.
+</p>
+
+<p class="intro">
+    Este proyecto no solo demuestra la comprensión de los métodos numéricos en teoría, sino también su aplicación práctica en el desarrollo de soluciones digitales. Sirve como recurso didáctico tanto para estudiantes que deseen reforzar sus conocimientos como para docentes que buscan una herramienta de apoyo visual en sus clases.
+</p>
+
+<p class="intro">
+    En resumen, el proyecto representa una síntesis entre teoría matemática, análisis numérico, programación y diseño de interfaces, materializado gracias al trabajo en equipo y la colaboración entre distintas disciplinas de la ingeniería.
+</p>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    p.intro {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #34495e;
+        max-width: 900px;
+        margin-bottom: 1.5rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+</style>

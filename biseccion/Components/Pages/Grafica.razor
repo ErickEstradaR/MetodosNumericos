@@ -1,0 +1,78 @@
+@page "/grafica"
+@using System.Text.RegularExpressions
+@using biseccion.Service
+@using NCalc
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject FuncionService FuncionService
+
+<h3>Gráfica de f(x) = @FuncionService.Funcion </h3>
+<canvas id="miGrafica" width="600" height="400"></canvas>
+
+@code {
+public class Punto
+{
+public double x { get; set; }
+public double y { get; set; }
+}
+
+// Rango fijo que quieres
+private double rangoInicio = -10;
+private double rangoFin = 10;
+private int cantidadPuntos = 200;
+
+protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+if (firstRender)
+{
+var puntos = GenerarPuntos();
+await JS.InvokeVoidAsync("crearGrafica", puntos, FuncionService.Funcion);
+}
+}
+
+List<Punto> GenerarPuntos()
+{
+var lista = new List<Punto>();
+string funcionProcesada = ConvertirPotencias(FuncionService.Funcion);
+var expr = new NCalc.Expression(funcionProcesada);
+
+double paso = (rangoFin - rangoInicio) / cantidadPuntos;
+
+for (double x = rangoInicio; x <= rangoFin; x += paso)
+{
+expr.Parameters["x"] = x;
+try
+{
+var result = expr.Evaluate();
+double y = Convert.ToDouble(result);
+
+// Filtra valores y muy grandes o inválidos
+if (double.IsInfinity(y) || double.IsNaN(y) || Math.Abs(y) > 1000)
+continue;
+
+lista.Add(new Punto { x = Math.Round(x, 3), y = Math.Round(y, 3) });
+}
+catch
+{
+// Ignora errores en evaluación
+}
+}
+return lista;
+}
+
+private string ConvertirPotencias(string funcion)
+{
+string patron = @"(\(?[\w\.\+\-\*\/]+\)?)\^(\(?[\w\.\+\-\*\/]+\)?)";
+
+while (System.Text.RegularExpressions.Regex.IsMatch(funcion, patron))
+{
+funcion = System.Text.RegularExpressions.Regex.Replace(funcion, patron, m =>
+{
+string baseExp = m.Groups[1].Value;
+string expExp = m.Groups[2].Value;
+return $"Pow({baseExp},{expExp})";
+});
+}
+return funcion;
+}
+}

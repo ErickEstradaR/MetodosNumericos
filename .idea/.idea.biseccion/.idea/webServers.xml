@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="aaf4087a-0e74-4ed7-a306-1d1002ae2252" name="Somee" url="http://155.254.244.34">
+        <fileTransfer rootFolder="/www.MetodosNumericos.somee.com" host="155.254.244.34" port="21">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,124 @@
+@page "/biseccion"
+@inject NavigationManager Navigation
+
+<div style="padding-top: 6rem;">
+    <h1>Método de Bisección</h1>
+</div>
+
+<div class="d-flex gap-3 mb-4">
+    <NavLink class="btn btn-primary" href="/biseccion/tabla">
+        Modo Automático (Tabla de Resultados)
+    </NavLink>
+    <NavLink class="btn btn-secondary" href="/biseccion/pasoapaso">
+        Modo Paso a Paso
+    </NavLink>
+</div>
+
+
+<div class="grid-container">
+    <div>
+        <h2>¿Qué es el método de bisección?</h2>
+        <p class="intro">
+            El método de bisección es una técnica numérica cerrada para encontrar raíces de funciones continuas.  
+            Requiere un intervalo inicial <code>[a, b]</code> donde la función cambie de signo  
+            (<code>f(a)·f(b) &lt; 0</code>), lo que garantiza la existencia de una raíz por el Teorema del Valor Intermedio.  
+            El método divide repetidamente el intervalo a la mitad, acercándose progresivamente a la raíz.
+        </p>
+    </div>
+
+    <div>
+        <h2>Características principales</h2>
+        <ul class="features-list">
+            <li>Siempre converge si se cumple el criterio del cambio de signo.</li>
+            <li>La convergencia es lenta pero segura (lineal).</li>
+            <li>Ideal para obtener una buena estimación inicial de la raíz.</li>
+            <li>Fácil de implementar y entender.</li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>Pasos del método</h2>
+        <ol class="steps-list">
+            <li>Elegir un intervalo <code>[a, b]</code> con <code>f(a)·f(b) &lt; 0</code>.</li>
+            <li>Calcular el punto medio <code>c = (a + b)/2</code>.</li>
+            <li>Evaluar <code>f(c)</code>. Si <code>f(c) = 0</code> o el error es menor al deseado, se detiene.</li>
+            <li>Elegir el nuevo intervalo: <code>[a, c]</code> o <code>[c, b]</code>, según el signo.</li>
+            <li>Repetir hasta alcanzar la precisión deseada.</li>
+        </ol>
+    </div>
+
+    <div>
+        <h2>Aplicaciones</h2>
+        <p class="applications">
+            El método de bisección se usa en ingeniería, física, economía y cualquier área que requiera resolver  
+            ecuaciones no lineales, especialmente cuando se busca una solución confiable y segura.
+        </p>
+    </div>
+</div>
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    p.intro, p.applications {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #34495e;
+        max-width: 700px;
+        margin-bottom: 1.5rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    code {
+        background-color: #f5f5f5;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: Consolas, 'Courier New', monospace;
+        font-size: 0.95rem;
+    }
+
+    h2 {
+        color: #2980b9;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    ul.features-list, ol.steps-list {
+        max-width: 700px;
+        padding-left: 1.2rem;
+        color: #2c3e50;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    ul.features-list li, ol.steps-list li {
+        margin-bottom: 0.5rem;
+    }
+
+    .d-flex {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: start;
+    }
+
+    .gap-3 {
+        gap: 1rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 2rem;
+    }
+</style>

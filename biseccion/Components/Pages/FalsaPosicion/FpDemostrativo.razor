@@ -1,0 +1,302 @@
+@page "/fp/pasoapaso"
+@using System.Text.RegularExpressions
+@using NCalc
+@rendermode InteractiveServer
+
+
+<h3>Método de Falsa Posición - Demostrativo Paso a Paso</h3>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <label>Función f(x):</label>
+        <InputText @bind-Value="Funcion" class="form-control" disabled="@MetodoIniciado" />
+    </div>
+    <div class="col-md-3">
+        <label>Valor de Xi:</label>
+        <InputNumber @bind-Value="A" class="form-control" disabled="@MetodoIniciado" />
+    </div>
+    <div class="col-md-3">
+        <label>Valor de Xu:</label>
+        <InputNumber @bind-Value="B" class="form-control" disabled="@MetodoIniciado" />
+    </div>
+    <div class="col-md-3">
+        <label>Tolerancia:</label>
+        <InputNumber @bind-Value="Tolerancia" class="form-control" disabled="@MetodoIniciado" />
+    </div>
+    <div class="col-md-3">
+        <label>Iteraciones máximas:</label>
+        <InputNumber @bind-Value="IteracionesMax" class="form-control" disabled="@MetodoIniciado" />
+    </div>
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-primary me-2" @onclick="IniciarMetodo" disabled="@MetodoIniciado">
+        Iniciar Método
+    </button>
+    <button class="btn btn-secondary" @onclick="SiguientePaso" disabled="@(!MetodoIniciado || MetodoTerminado)">
+        Siguiente Paso
+    </button>
+    <button class="btn btn-danger ms-2" @onclick="Reiniciar" disabled="!MetodoIniciado">
+        Reiniciar
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(Mensaje))
+{
+<div class="alert alert-warning text-center" role="alert">@Mensaje</div>
+}
+
+@if (MetodoIniciado)
+{
+<div class="card my-3 p-3 shadow-sm">
+    <h5>Iteración @IteracionActual - Paso @((int)PasoActual + 1) de @TotalPasosPorIteracion</h5>
+
+    @switch (PasoActual)
+    {
+    case Paso.MostrarIntervalo:
+    <p><b>Intervalo actual:</b> a = @a.ToString("F4"), b = @b.ToString("F4")</p>
+    <p><b>Evaluamos la función en los extremos:</b></p>
+    <ul>
+        <li>f(a) = @fA.ToString("F4")</li>
+        <li>f(b) = @fB.ToString("F4")</li>
+    </ul>
+    <p>Como f(a) y f(b) tienen signos opuestos, podemos continuar.</p>
+    break;
+
+    case Paso.CalcularC:
+    <p><b>Calculamos el punto c usando la fórmula de Falsa Posición:</b></p>
+    <p><b>Fórmula general:</b><br />
+        <code>c = b - [f(b) × (a - b)] / [f(a) - f(b)]</code>
+    </p>
+    <p><b>Valores actuales sustituidos:</b></p>
+    <div style="display: flex; align-items: center; font-size: 1.1rem;">
+        <span>c = @b.ToString("F4") -</span>
+        <div style="margin-left: 1rem; display: inline-block; text-align: center;">
+            <div style="border-bottom: 2px solid black; padding: 0 0.75rem; white-space: nowrap;">
+                @fB.ToString("F4") × (@a.ToString("F4") - @b.ToString("F4"))
+            </div>
+            <div style="padding-top: 0.25rem;">
+                (@fA.ToString("F4") - @fB.ToString("F4"))
+            </div>
+        </div>
+    </div>
+    <p class="mt-3"><b>Resultado:</b> c = <strong>@c.ToString("F4")</strong></p>
+    break;
+
+    case Paso.EvaluarFc:
+    <p><b>Evaluamos la función en c:</b></p>
+    <p>f(c) = @fC.ToString("F4")</p>
+    break;
+
+    case Paso.DecidirNuevoIntervalo:
+    <p><b>Decisión:</b></p>
+    @if (fA * fC < 0)
+    {
+    <p>Como f(a)*f(c) &lt; 0, el intervalo se reduce a [a, c].</p>
+    <p>Reemplazamos b por c.</p>
+    }
+    else
+    {
+    <p>Como f(a)*f(c) ≥ 0, el intervalo se reduce a [c, b].</p>
+    <p>Reemplazamos a por c.</p>
+    }
+    break;
+
+    case Paso.CalcularError:
+    <p><b>Cálculo del error relativo porcentual:</b></p>
+    @if (IteracionActual == 0)
+    {
+    <p>No se calcula error en la primera iteración porque no hay valor previo.</p>
+    }
+    else
+    {
+    <p>Error = |(c - cAnterior) / c| × 100 = <strong>@((Error * 100)?.ToString("F4"))%</strong></p>
+    }
+    <p>Comparando con la tolerancia: <strong>@Tolerancia.ToString("F4")</strong></p>
+    break;
+
+    case Paso.FinIteracion:
+    @if (MetodoTerminado)
+    {
+    <div class="alert alert-success text-center">
+        <b>El método ha terminado.</b><br />
+        Raíz aproximada: <b>@c.ToString("F4")</b><br />
+        Iteraciones realizadas: @IteracionActual
+    </div>
+    }
+    else
+    {
+    <p><b>Iteración completada con éxito.</b></p>
+    }
+    break;
+    }
+</div>
+}
+
+@code {
+enum Paso
+{
+MostrarIntervalo,
+CalcularC,
+EvaluarFc,
+DecidirNuevoIntervalo,
+CalcularError,
+FinIteracion
+}
+
+private string Funcion = "x^3 - x - 2";
+private double A;
+private double B;
+private double Tolerancia = 0.0001;
+private int IteracionesMax = 50;
+
+private bool MetodoIniciado = false;
+private bool MetodoTerminado = false;
+private string Mensaje = "";
+
+private int IteracionActual = 1;
+private Paso PasoActual = Paso.MostrarIntervalo;
+private const int TotalPasosPorIteracion = 6;
+
+// Variables de estado
+private double a, b, c, fA, fB, fC;
+private double? Error;
+private double cAnterior = double.NaN;
+private double? RaizFinal = null;
+
+private void IniciarMetodo()
+{
+Mensaje = "";
+MetodoTerminado = false;
+MetodoIniciado = false;
+
+IteracionActual = 1;
+PasoActual = Paso.MostrarIntervalo;
+
+a = A;
+b = B;
+fA = Evaluar(a);
+fB = Evaluar(b);
+
+if (fA * fB >= 0)
+{
+Mensaje = "No se puede aplicar el método: f(a) y f(b) deben tener signos opuestos.";
+return;
+}
+
+cAnterior = double.NaN;
+RaizFinal = null;
+MetodoIniciado = true;
+}
+
+private void SiguientePaso()
+{
+if (MetodoTerminado) return;
+
+switch (PasoActual)
+{
+case Paso.MostrarIntervalo:
+    c = b - (fB * (a - b)) / (fA - fB);
+    fC = Evaluar(c);
+PasoActual = Paso.CalcularC;
+break;
+
+case Paso.CalcularC:
+
+PasoActual = Paso.EvaluarFc;
+break;
+
+case Paso.EvaluarFc:
+Error = double.IsNaN(cAnterior) ? null : Math.Abs((c - cAnterior) / c);
+
+bool convergencia = Math.Abs(fC) < Tolerancia || (Error.HasValue && Error.Value < Tolerancia && IteracionActual > 1);
+
+if (convergencia || IteracionActual >= IteracionesMax)
+{
+MetodoTerminado = true;
+RaizFinal = c;
+PasoActual = Paso.FinIteracion;
+return;
+}
+
+PasoActual = Paso.DecidirNuevoIntervalo;
+break;
+
+case Paso.DecidirNuevoIntervalo:
+if (fA * fC < 0)
+{
+b = c;
+fB = fC;
+}
+else
+{
+a = c;
+fA = fC;
+}
+
+PasoActual = Paso.CalcularError;
+break;
+
+case Paso.CalcularError:
+cAnterior = c;
+PasoActual = Paso.FinIteracion;
+break;
+
+case Paso.FinIteracion:
+if (!MetodoTerminado)
+{
+IteracionActual++;
+PasoActual = Paso.MostrarIntervalo;
+}
+break;
+}
+}
+
+private void Reiniciar()
+{
+MetodoIniciado = false;
+MetodoTerminado = false;
+Mensaje = "";
+IteracionActual = 1;
+PasoActual = Paso.MostrarIntervalo;
+RaizFinal = null;
+}
+
+private double Evaluar(double x)
+{
+try
+{
+string funcionProcesada = ConvertirPotencias(Funcion);
+var expression = new NCalc.Expression(funcionProcesada);
+expression.Parameters["x"] = x;
+var result = expression.Evaluate();
+return Convert.ToDouble(result);
+}
+catch
+{
+MetodoTerminado = true;
+Mensaje = "Error al evaluar la función.";
+return 0;
+}
+}
+
+private string ConvertirPotencias(string funcion)
+{
+string patron = @"(\(?[\w\.\+\-\*\/]+\)?)\^(\(?[\w\.\+\-\*\/]+\)?)";
+
+while (Regex.IsMatch(funcion, patron))
+{
+funcion = Regex.Replace(funcion, patron, m =>
+{
+string baseExp = m.Groups[1].Value;
+string expExp = m.Groups[2].Value;
+return $"Pow({baseExp},{expExp})";
+});
+}
+return funcion;
+}
+}
+
+
+
+
