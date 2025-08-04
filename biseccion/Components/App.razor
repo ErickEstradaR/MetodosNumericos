@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using biseccion.Service
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -16,6 +17,57 @@
 <body>
 <Routes/>
 <script src="_framework/blazor.web.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/site.js"></script>
+<script>
+    window.crearGrafica = (puntos, funcion) => {
+        const ctx = document.getElementById('miGrafica').getContext('2d');
+
+        if (window.miGrafica && typeof window.miGrafica.destroy === "function") {
+            window.miGrafica.destroy();
+        }
+
+        window.miGrafica = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: funcion,
+                    data: puntos,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        min: -30,      // límite inferior fijo
+                        max: 30,       // límite superior fijo
+                        title: 
+        {
+                            display: true,
+                            text: 'f(x)'
+                        }
+                    }
+                }
+            }
+        });
+    };
+</script>
+
+
+
+
+
 </body>
 
 </html>
